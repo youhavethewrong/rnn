@@ -32,7 +32,18 @@
 
 (defn -derivative
   [f x y h]
-  (/ (- (f (+ x h) y) (f x y)) h))
+  (/ (- (f (+ x h) y) (f x y)) h)
+)
+
+(defn numerical-gradient
+  ([f x y h]
+   [(/ (- (f (+ x h) y) (f x y)) h)
+    (/ (- (f x (+ y h)) (f x y)) h)])
+  
+  ([f x y z h]
+   [(/ (- (f (+ x h) y z) (f x y z)) h)
+    (/ (- (f x (+ y h) z) (f x y z)) h)
+    (/ (- (f x y (+ z h)) (f x y z)) h)]))
 
 (defn numerical-derivative-tweak
   [f x y]
@@ -42,7 +53,12 @@
         y (+ y (* step-size (-derivative f y x h)))]
     {:result (f x y) :x x :y x}))
 
-(defn analytical-forward-circuit
+(defn numerical-forward-circuit-gradient
+  [x y z]
+  (let [h 0.0001]
+    (numerical-gradient forward-circuit x y z h)))
+
+(defn analytical-forward-circuit-gradient
   [x y z]
   (let [q (forward-add-gate x y)
         f (forward-multiply-gate q z)
@@ -51,10 +67,14 @@
         der-q-wrt-x 1.0
         der-q-wrt-y 1.0
         der-f-wrt-x (* der-q-wrt-x der-f-wrt-q)
-        der-f-wrt-y (* der-q-wrt-y der-f-wrt-q)
-        der-f-wrt-xyz [der-f-wrt-x der-f-wrt-y der-f-wrt-z]
+        der-f-wrt-y (* der-q-wrt-y der-f-wrt-q)]
+    [der-f-wrt-x der-f-wrt-y der-f-wrt-z]))
+
+(defn analytical-forward-circuit
+  [x y z]
+  (let [der-f-wrt-xyz (analytical-forward-circuit-gradient x y z)
         step-size 0.01
-        x (+ x (* step-size der-f-wrt-x))
-        y (+ y (* step-size der-f-wrt-y))
-        z (+ z (* step-size der-f-wrt-z))]
-    (forward-multiply-gate (forward-add-gate x y) z)))
+        x (+ x (* step-size (first der-f-wrt-xyz)))
+        y (+ y (* step-size (second der-f-wrt-xyz)))
+        z (+ z (* step-size (nth der-f-wrt-xyz 2)))]
+    (forward-circuit x y z)))
