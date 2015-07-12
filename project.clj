@@ -2,4 +2,5 @@
   :description "Ravishingly cool Neural Networks"
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0"}
-  :dependencies [[org.clojure/clojure "1.7.0-RC1"]])
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [org.clojure/math.numeric-tower "0.0.4"]])

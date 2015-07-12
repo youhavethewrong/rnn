@@ -1,7 +1,8 @@
 (ns rnn.neuron-test
   (:require [rnn.neuron :refer :all]
+            [rnn.math :refer [double=]]
             [clojure.test :refer :all])
-  (:import [rnn.neuron AddGate MultiplyGate Unit]))
+  (:import [rnn.neuron AddGate MultiplyGate SigmoidGate Unit]))
 
 (deftest add-gate
   (testing "Should exercise forward and backword propagation for the add gate."
@@ -30,3 +31,17 @@
       (is (= {:value 6 :gradient 0.0} forward-value))
       (is (= [(map->Unit {:value 2 :gradient 0.0})
               (map->Unit {:value 3 :gradient 0.0})] backward-value)))))
+
+(deftest sigmoid-gate
+  (testing "Should exercise forward and backword propagation for the sig gate."
+    (let [gate (SigmoidGate.)
+          forward-value (.forward gate
+                                  (Unit. 2 0.0)
+                                  nil)
+          backward-value (.backward gate
+                                    forward-value
+                                    (Unit. 2 0.0)
+                                    nil)]
+      (is (double= 0.88079 (:value forward-value) 0.001))
+      (is (= 0.0 (:gradient forward-value)))
+      (is (= (map->Unit {:value 2 :gradient 0.0}) backward-value)))))

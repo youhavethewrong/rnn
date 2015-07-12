@@ -1,4 +1,5 @@
-(ns rnn.neuron)
+(ns rnn.neuron
+  (:require [rnn.math :refer [sigmoid]]))
 
 (defrecord Unit
     [value gradient])
@@ -28,3 +29,14 @@
    [_ o0 u0 u1]
    [(assoc u0 :gradient (+ (:gradient u0) (* (:value u1) (:gradient o0))))
     (assoc u1 :gradient (+ (:gradient u1) (* (:value u0) (:gradient o0))))]))
+
+(defrecord SigmoidGate []
+  Gate
+  (forward
+   [_ u0 _]
+   {:value (sigmoid (:value u0)) :gradient 0.0})
+
+  (backward
+   [_ o0 u0 _]
+   (let [s (sigmoid (:value u0))]
+     (assoc u0 :gradient (+ (:gradient u0) (* (* s (- 1 s)) (:gradient o0)))))))

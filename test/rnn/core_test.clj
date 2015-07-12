@@ -1,18 +1,7 @@
 (ns rnn.core-test
   (:require [clojure.test :refer :all]
+            [rnn.math :refer [double=]]
             [rnn.core :refer :all]))
-
-(defn- scale [x y]
-  (if (or (zero? x) (zero? y))
-    1
-    (Math/abs x)))
-
-(defn double=
-  ([x y]
-   (double= x y 0.00001))
-  ([x y epsilon]
-   (<= (Math/abs (- x y))
-       (* (scale x y) epsilon))))
 
 (deftest gate-tests
   (testing "Testing forward multiply gate."
