@@ -43,6 +43,34 @@
           addg0 (AddGate. (.forward mulg0) (.forward mulg1))
           addg1 (AddGate. (.forward addg0) c)
           sg0 (SigmoidGate. (.forward addg1))
-          forward-neuron (.forward sg0)]
+          forward-neuron (.forward sg0)
+          forward-neuron (assoc forward-neuron :gradient 1.0)
+          sg0 (map->SigmoidGate (.backward sg0 forward-neuron))
+          addg1 (map->AddGate (.backward addg1 sg0))
+          addg0 (map->AddGate (.backward addg0 addg1))
+          mulg1 (map->AddGate (.backward mulg1 addg0))
+          mulg0 (map->AddGate (.backward mulg0 addg0))
+          ]
       (is (double= 0.8808 (:value forward-neuron) 0.0001))
+      (is (double= 0.1049 (:gradient sg0) 0.001))
+      (is (double= 1.1049 (:gradient addg1) 0.001))
+      (is (double= 2.1049 (:gradient addg0) 0.001))
+      (is (double= 4.2099 (:gradient mulg1) 0.001))
+      (is (double= 2.1049 (:gradient mulg0) 0.001))
       )))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
