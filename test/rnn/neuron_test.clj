@@ -6,42 +6,27 @@
 
 (deftest add-gate
   (testing "Should exercise forward and backward propagation for the add gate."
-    (let [gate (AddGate.)
-          forward-value (.forward gate
-                                  (Unit. 2 0.0)
-                                  (Unit. 3 0.0))
-          backward-value (.backward gate
-                                    forward-value
-                                    (Unit. 2 0.0)
-                                    (Unit. 3 0.0))]
+    (let [gate (AddGate. (Unit. 2 0.0) (Unit. 3 0.0))
+          forward-value (.forward gate)
+          backward-value (.backward gate forward-value)]
       (is (= (map->Unit {:value 5 :gradient 0.0}) forward-value))
       (is (= [(map->Unit {:value 2 :gradient 1.0})
               (map->Unit {:value 3 :gradient 1.0})] backward-value)))))
 
 (deftest multiply-gate
   (testing "Should exercise forward and backward propagation for the multiply gate."
-    (let [gate (MultiplyGate.)
-          forward-value (.forward gate
-                                  (Unit. 2 0.0)
-                                  (Unit. 3 0.0))
-          backward-value (.backward gate
-                                    forward-value
-                                    (Unit. 2 0.0)
-                                    (Unit. 3 0.0))]
+    (let [gate (MultiplyGate. (Unit. 2 0.0) (Unit. 3 0.0))
+          forward-value (.forward gate)
+          backward-value (.backward gate forward-value)]
       (is (= (map->Unit {:value 6 :gradient 0.0}) forward-value))
       (is (= [(map->Unit {:value 2 :gradient 0.0})
               (map->Unit {:value 3 :gradient 0.0})] backward-value)))))
 
 (deftest sigmoid-gate
   (testing "Should exercise forward and backward propagation for the sig gate."
-    (let [gate (SigmoidGate.)
-          forward-value (.forward gate
-                                  (Unit. 2 0.0)
-                                  nil)
-          backward-value (.backward gate
-                                    forward-value
-                                    (Unit. 2 0.0)
-                                    nil)]
+    (let [gate (SigmoidGate. (Unit. 2 0.0))
+          forward-value (.forward gate)
+          backward-value (.backward gate forward-value)]
       (is (double= 0.88079 (:value forward-value) 0.001))
       (is (= 0.0 (:gradient forward-value)))
       (is (= (map->Unit {:value 2 :gradient 0.0}) backward-value)))))
@@ -53,16 +38,11 @@
           c (Unit. -3.0 0.0)
           x (Unit. -1.0 0.0)
           y (Unit. 3.0 0.0)
-          mulg0 (MultiplyGate.)
-          mulg1 (MultiplyGate.)
-          addg0 (AddGate.)
-          addg1 (AddGate.)
-          sg0 (SigmoidGate.)
-          forward-neuron (.forward sg0
-                                   (.forward addg1
-                                             (.forward addg0
-                                                       (.forward mulg0 a x)
-                                                       (.forward mulg1 b y))
-                                             c) nil)]
+          mulg0 (MultiplyGate. a x)
+          mulg1 (MultiplyGate. b y)
+          addg0 (AddGate. (.forward mulg0) (.forward mulg1))
+          addg1 (AddGate. (.forward addg0) c)
+          sg0 (SigmoidGate. (.forward addg1))
+          forward-neuron (.forward sg0)]
       (is (double= 0.8808 (:value forward-neuron) 0.0001))
       )))
