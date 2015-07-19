@@ -12,7 +12,7 @@
   Gate
   (forward
    [_ u0 u1]
-   {:value (+ (:value u0) (:value u1)) :gradient 0.0})
+   (Unit. (+ (:value u0) (:value u1))  0.0))
   
   (backward
    [_ o0 u0 u1]
@@ -23,7 +23,7 @@
   Gate
   (forward
    [_ u0 u1]
-   {:value (* (:value u0) (:value u1)) :gradient 0.0})
+   (map->Unit {:value (* (:value u0) (:value u1)) :gradient 0.0}))
   
   (backward
    [_ o0 u0 u1]
@@ -34,7 +34,7 @@
   Gate
   (forward
    [_ u0 _]
-   {:value (sigmoid (:value u0)) :gradient 0.0})
+   (map->Unit {:value (sigmoid (:value u0)) :gradient 0.0}))
 
   (backward
    [_ o0 u0 _]
