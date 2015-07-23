@@ -43,6 +43,11 @@
           addg0 (AddGate. (.forward mulg0) (.forward mulg1))
           addg1 (AddGate. (.forward addg0) c)
           sg0 (SigmoidGate. (.forward addg1))
+          fw [sg0
+              [addg0
+               [addg1 [mulg0 [a x]
+                       mulg1 [b y]]]
+               c]]
           forward-neuron (.forward sg0)
           forward-neuron (assoc forward-neuron :gradient 1.0)
           sg0 (map->SigmoidGate (.backward sg0 forward-neuron))
