@@ -41,18 +41,3 @@
    (let [s (sigmoid (:value u0))]
      (assoc u0 :gradient (+ (:gradient u0) (* (* s (- 1 s)) (:gradient o0)))))))
 
-(defn evaluate-dag
-  [dag]
-  (let [part (next dag)]
-    (cond
-      (sequential? part)
-      (do
-        (println "It")
-        (evaluate-dag part))
-      (satisfies? Gate)
-      (println "It's a gate!")
-      (instance? Unit part)
-      (println ("It's a unit!")))))
-
-(defn propogate
-  [f gate-dag])
